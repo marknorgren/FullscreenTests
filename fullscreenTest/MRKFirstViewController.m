@@ -9,6 +9,8 @@
 #import "MRKFirstViewController.h"
 #import "MRKAppDelegate.h"
 
+#define CGRectCopy(rect) {rect.origin, rect.size}
+
 @interface MRKFirstViewController ()
 
 @end
@@ -53,10 +55,11 @@
 //
 BOOL isAnimating = NO;
 BOOL isTabBarAndNavBarHidden = NO;
+
 - (IBAction)testButton2Touched:(UIButton *)sender {
     
-    if(!isAnimating){
-        if(isTabBarAndNavBarHidden){
+    if(!isAnimating) {
+        if(isTabBarAndNavBarHidden) {
             
             [UIView transitionWithView:self.view
                               duration:0.5
@@ -65,25 +68,25 @@ BOOL isTabBarAndNavBarHidden = NO;
              {
                  isAnimating=YES;
                  
-                 CGFloat statusBar_height=[[UIApplication sharedApplication] statusBarFrame].size.height;
-                 CGFloat screen_height=[UIScreen mainScreen].bounds.size.height;
+                 CGFloat statusBarHeight=[[UIApplication sharedApplication] statusBarFrame].size.height;
+                 CGFloat screenHeight=[UIScreen mainScreen].bounds.size.height;
                  
-                 [self.tabBarController.view setFrame:CGRectMake(self.tabBarController.view.frame.origin.x,
-                                                                 0,
-                                                                 self.tabBarController.view.frame.size.width,
-                                                                 screen_height)];
-                 [self.navigationController.navigationBar setFrame:CGRectMake(self.navigationController.navigationBar.frame.origin.x,
-                                                                              statusBar_height,
-                                                                              self.navigationController.navigationBar.frame.size.width,
-                                                                              self.navigationController.navigationBar.frame.size.height)];
+				 CGRect tabBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+				 tabBarFrame.origin.y = 0;
+				 tabBarFrame.size.height = screenHeight;
+                 [self.tabBarController.view setFrame:tabBarFrame];
+				 
+				 CGRect navBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+				 navBarFrame.origin.y = statusBarHeight;
+				 [self.navigationController.navigationBar setFrame:navBarFrame];
              }
                             completion:^(BOOL finished)
              {
-                 isTabBarAndNavBarHidden=NO;
-                 isAnimating=NO;
+                 isTabBarAndNavBarHidden = NO;
+                 isAnimating = NO;
              }];
             
-        }else{
+        } else {
             
             [UIView transitionWithView:self.view
                               duration:0.5
@@ -92,25 +95,22 @@ BOOL isTabBarAndNavBarHidden = NO;
              {
                  isAnimating=YES;
                  
-                 CGFloat statusBar_height=[[UIApplication sharedApplication]
-                                           statusBarFrame].size.height;
-                 CGFloat screen_height=[UIScreen mainScreen].bounds.size.height;
-                 
-                 [self.tabBarController.view setFrame:CGRectMake(self.tabBarController.view.frame.origin.x,
-                                                                 statusBar_height-self.navigationController.navigationBar.frame.size.height,
-                                                                 self.tabBarController.view.frame.size.width,
-                                                                 screen_height+self.navigationController.navigationBar.frame.size.height+self.tabBarController.tabBar.frame.size.height-statusBar_height)];
-                 [self.navigationController.navigationBar setFrame:CGRectMake(self.navigationController.navigationBar.frame.origin.x,
-                                                                              0,
-                                                                              self.navigationController.navigationBar.frame.size.width,
-                                                                              self.navigationController.navigationBar.frame.size.height)];
-                 
-                 
+                 CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
+                 CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+
+				 CGRect tabBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+				 tabBarFrame.origin.y = statusBarHeight - self.navigationController.navigationBar.frame.size.height;
+				 tabBarFrame.size.height = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+                 [self.tabBarController.view setFrame:tabBarFrame];
+
+				 CGRect navBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+				 navBarFrame.origin.y = 0;
+				 [self.navigationController.navigationBar setFrame:navBarFrame];
              }
                             completion:^(BOOL finished)
              {
-                 isTabBarAndNavBarHidden=YES;
-                 isAnimating=NO;
+                 isTabBarAndNavBarHidden = YES;
+                 isAnimating = NO;
              }];
             
         }
