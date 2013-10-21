@@ -9,8 +9,9 @@
 #import "MRKFirstViewController.h"
 #import "MRKAppDelegate.h"
 
-@interface MRKFirstViewController ()
+#define CGRectCopy(rect) {rect.origin, rect.size}
 
+@interface MRKFirstViewController ()
 @end
 
 @implementation MRKFirstViewController
@@ -47,70 +48,121 @@
     
 }
 
+- (IBAction)swipeUp:(id)sender {
+	NSLog(@"SwipeUp");
+	
+	CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+	if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+	{
+		tabBarFrame.origin.y -= 10;
+	}
+	else
+	{
+		tabBarFrame.origin.x += 10;
+	}
+	[self.tabBarController.view setFrame:tabBarFrame];
+}
+
+- (IBAction)swipeDown:(id)sender {
+	NSLog(@"SwipeDown");
+	CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+	if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+	{
+		tabBarFrame.origin.y += 10;
+	}
+	else
+	{
+		tabBarFrame.origin.x -= 10;
+	}
+	[self.tabBarController.view setFrame:tabBarFrame];
+}
 
 //
 // Follow code based on: http://stackoverflow.com/a/13125557/406
 //
 BOOL isAnimating = NO;
 BOOL isTabBarAndNavBarHidden = NO;
+
 - (IBAction)testButton2Touched:(UIButton *)sender {
     
-    if(!isAnimating){
-        if(isTabBarAndNavBarHidden){
+    if (!isAnimating) {
+        if (isTabBarAndNavBarHidden) {
             
             [UIView transitionWithView:self.view
                               duration:0.5
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^
              {
-                 isAnimating=YES;
+                 isAnimating = YES;
                  
-                 CGFloat statusBar_height=[[UIApplication sharedApplication] statusBarFrame].size.height;
-                 CGFloat screen_height=[UIScreen mainScreen].bounds.size.height;
+                 CGFloat statusBarHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [[UIApplication sharedApplication] statusBarFrame].size.height : [[UIApplication sharedApplication] statusBarFrame].size.width;
+				 CGFloat screenHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [UIScreen mainScreen].bounds.size.height : [UIScreen mainScreen].bounds.size.width;
+
                  
-                 [self.tabBarController.view setFrame:CGRectMake(self.tabBarController.view.frame.origin.x,
-                                                                 0,
-                                                                 self.tabBarController.view.frame.size.width,
-                                                                 screen_height)];
-                 [self.navigationController.navigationBar setFrame:CGRectMake(self.navigationController.navigationBar.frame.origin.x,
-                                                                              statusBar_height,
-                                                                              self.navigationController.navigationBar.frame.size.width,
-                                                                              self.navigationController.navigationBar.frame.size.height)];
+//				 NSLog(@"<< tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+ 				 CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+				 if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+				 {
+					 tabBarFrame.origin.y = 0;
+					 tabBarFrame.size.height = screenHeight;
+				 }
+				 else
+				 {
+					 tabBarFrame.origin.x = 0;
+					 tabBarFrame.size.width = screenHeight;
+				 }
+				 [self.tabBarController.view setFrame:tabBarFrame];
+//				 NSLog(@">> tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+
+//				 NSLog(@"<< navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
+				 CGRect navBarFrame = CGRectCopy(self.navigationController.navigationBar.frame);
+				 navBarFrame.origin.y = statusBarHeight;
+				 [self.navigationController.navigationBar setFrame:navBarFrame];
+//				 NSLog(@">> navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
              }
                             completion:^(BOOL finished)
              {
-                 isTabBarAndNavBarHidden=NO;
-                 isAnimating=NO;
+                 isTabBarAndNavBarHidden = NO;
+                 isAnimating = NO;
              }];
             
-        }else{
+        } else {
             
             [UIView transitionWithView:self.view
                               duration:0.5
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^
              {
-                 isAnimating=YES;
+                 isAnimating = YES;
                  
-                 CGFloat statusBar_height=[[UIApplication sharedApplication]
-                                           statusBarFrame].size.height;
-                 CGFloat screen_height=[UIScreen mainScreen].bounds.size.height;
-                 
-                 [self.tabBarController.view setFrame:CGRectMake(self.tabBarController.view.frame.origin.x,
-                                                                 statusBar_height-self.navigationController.navigationBar.frame.size.height,
-                                                                 self.tabBarController.view.frame.size.width,
-                                                                 screen_height+self.navigationController.navigationBar.frame.size.height+self.tabBarController.tabBar.frame.size.height-statusBar_height)];
-                 [self.navigationController.navigationBar setFrame:CGRectMake(self.navigationController.navigationBar.frame.origin.x,
-                                                                              0,
-                                                                              self.navigationController.navigationBar.frame.size.width,
-                                                                              self.navigationController.navigationBar.frame.size.height)];
-                 
-                 
+                 CGFloat statusBarHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [[UIApplication sharedApplication] statusBarFrame].size.height : [[UIApplication sharedApplication] statusBarFrame].size.width;
+                 CGFloat screenHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [UIScreen mainScreen].bounds.size.height : [UIScreen mainScreen].bounds.size.width;
+
+//				 NSLog(@"<< tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+				 CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+				 if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+				 {
+					 tabBarFrame.origin.y = statusBarHeight - self.navigationController.navigationBar.frame.size.height;
+					 tabBarFrame.size.height = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+				 }
+				 else
+				 {
+					 tabBarFrame.origin.x = -self.tabBarController.tabBar.frame.size.height;
+					 tabBarFrame.size.width = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+				 }
+                 [self.tabBarController.view setFrame:tabBarFrame];
+//				 NSLog(@">> tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+
+//				 NSLog(@"<< navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
+				 CGRect navBarFrame = CGRectCopy(self.navigationController.navigationBar.frame);
+				 navBarFrame.origin.y = 0;
+				 [self.navigationController.navigationBar setFrame:navBarFrame];
+//				 NSLog(@">> navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
              }
                             completion:^(BOOL finished)
              {
-                 isTabBarAndNavBarHidden=YES;
-                 isAnimating=NO;
+                 isTabBarAndNavBarHidden = YES;
+                 isAnimating = NO;
              }];
             
         }
