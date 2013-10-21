@@ -12,7 +12,6 @@
 #define CGRectCopy(rect) {rect.origin, rect.size}
 
 @interface MRKFirstViewController ()
-
 @end
 
 @implementation MRKFirstViewController
@@ -49,6 +48,34 @@
     
 }
 
+- (IBAction)swipeUp:(id)sender {
+	NSLog(@"SwipeUp");
+	
+	CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+	if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+	{
+		tabBarFrame.origin.y -= 10;
+	}
+	else
+	{
+		tabBarFrame.origin.x += 10;
+	}
+	[self.tabBarController.view setFrame:tabBarFrame];
+}
+
+- (IBAction)swipeDown:(id)sender {
+	NSLog(@"SwipeDown");
+	CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+	if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+	{
+		tabBarFrame.origin.y += 10;
+	}
+	else
+	{
+		tabBarFrame.origin.x -= 10;
+	}
+	[self.tabBarController.view setFrame:tabBarFrame];
+}
 
 //
 // Follow code based on: http://stackoverflow.com/a/13125557/406
@@ -58,27 +85,40 @@ BOOL isTabBarAndNavBarHidden = NO;
 
 - (IBAction)testButton2Touched:(UIButton *)sender {
     
-    if(!isAnimating) {
-        if(isTabBarAndNavBarHidden) {
+    if (!isAnimating) {
+        if (isTabBarAndNavBarHidden) {
             
             [UIView transitionWithView:self.view
                               duration:0.5
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^
              {
-                 isAnimating=YES;
+                 isAnimating = YES;
                  
-                 CGFloat statusBarHeight=[[UIApplication sharedApplication] statusBarFrame].size.height;
-                 CGFloat screenHeight=[UIScreen mainScreen].bounds.size.height;
+                 CGFloat statusBarHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [[UIApplication sharedApplication] statusBarFrame].size.height : [[UIApplication sharedApplication] statusBarFrame].size.width;
+				 CGFloat screenHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [UIScreen mainScreen].bounds.size.height : [UIScreen mainScreen].bounds.size.width;
+
                  
-				 CGRect tabBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
-				 tabBarFrame.origin.y = 0;
-				 tabBarFrame.size.height = screenHeight;
-                 [self.tabBarController.view setFrame:tabBarFrame];
-				 
-				 CGRect navBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+//				 NSLog(@"<< tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+ 				 CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+				 if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+				 {
+					 tabBarFrame.origin.y = 0;
+					 tabBarFrame.size.height = screenHeight;
+				 }
+				 else
+				 {
+					 tabBarFrame.origin.x = 0;
+					 tabBarFrame.size.width = screenHeight;
+				 }
+				 [self.tabBarController.view setFrame:tabBarFrame];
+//				 NSLog(@">> tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+
+//				 NSLog(@"<< navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
+				 CGRect navBarFrame = CGRectCopy(self.navigationController.navigationBar.frame);
 				 navBarFrame.origin.y = statusBarHeight;
 				 [self.navigationController.navigationBar setFrame:navBarFrame];
+//				 NSLog(@">> navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
              }
                             completion:^(BOOL finished)
              {
@@ -93,19 +133,31 @@ BOOL isTabBarAndNavBarHidden = NO;
                                options:UIViewAnimationOptionCurveEaseInOut
                             animations:^
              {
-                 isAnimating=YES;
+                 isAnimating = YES;
                  
-                 CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
-                 CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+                 CGFloat statusBarHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [[UIApplication sharedApplication] statusBarFrame].size.height : [[UIApplication sharedApplication] statusBarFrame].size.width;
+                 CGFloat screenHeight = UIInterfaceOrientationIsPortrait(self.interfaceOrientation) ? [UIScreen mainScreen].bounds.size.height : [UIScreen mainScreen].bounds.size.width;
 
-				 CGRect tabBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
-				 tabBarFrame.origin.y = statusBarHeight - self.navigationController.navigationBar.frame.size.height;
-				 tabBarFrame.size.height = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+//				 NSLog(@"<< tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
+				 CGRect tabBarFrame = CGRectCopy(self.tabBarController.view.frame);
+				 if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+				 {
+					 tabBarFrame.origin.y = statusBarHeight - self.navigationController.navigationBar.frame.size.height;
+					 tabBarFrame.size.height = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+				 }
+				 else
+				 {
+					 tabBarFrame.origin.x = -self.tabBarController.tabBar.frame.size.height;
+					 tabBarFrame.size.width = screenHeight + self.navigationController.navigationBar.frame.size.height + self.tabBarController.tabBar.frame.size.height - statusBarHeight;
+				 }
                  [self.tabBarController.view setFrame:tabBarFrame];
+//				 NSLog(@">> tabBarFrame = %@", NSStringFromCGRect(self.tabBarController.view.frame));
 
-				 CGRect navBarFrame = CGRectCopy( self.navigationController.navigationBar.frame );
+//				 NSLog(@"<< navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
+				 CGRect navBarFrame = CGRectCopy(self.navigationController.navigationBar.frame);
 				 navBarFrame.origin.y = 0;
 				 [self.navigationController.navigationBar setFrame:navBarFrame];
+//				 NSLog(@">> navigationBar.frame = %@", NSStringFromCGRect(self.navigationController.navigationBar.frame));
              }
                             completion:^(BOOL finished)
              {
